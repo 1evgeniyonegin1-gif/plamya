@@ -30,38 +30,64 @@ try:
 except ImportError:
     HAS_FIGLET = False
 
-console = Console() if HAS_RICH else None
+console = Console(color_system="truecolor") if HAS_RICH else None
 
 # ── Fire gradient ────────────────────────────────────────────────
 
-FIRE_COLORS = [
-    "#3d0c02",  # deep ember
-    "#6b1a0a",  # dark red
-    "#a82812",  # crimson
-    "#d4451a",  # red-orange
-    "#e8611a",  # orange
-    "#f28c28",  # bright orange
-    "#f5b041",  # amber
-    "#f9d342",  # gold
-    "#fce94f",  # yellow
-    "#fdf6e3",  # hot white
+FIRE_GRADIENT = [
+    (255, 80, 20),    # bright red-orange
+    (255, 110, 30),   # orange
+    (255, 140, 40),   # warm orange
+    (255, 170, 50),   # amber
+    (255, 200, 60),   # gold
+    (255, 230, 80),   # yellow
+    (255, 245, 140),  # bright yellow
 ]
 
 
+def _lerp_color(c1, c2, t):
+    """Linearly interpolate between two RGB tuples."""
+    return tuple(int(a + (b - a) * t) for a, b in zip(c1, c2))
+
+
+def _sample_gradient(colors, t):
+    """Sample a color from gradient at position t (0..1)."""
+    t = max(0.0, min(1.0, t))
+    segment = t * (len(colors) - 1)
+    idx = int(segment)
+    frac = segment - idx
+    if idx >= len(colors) - 1:
+        return colors[-1]
+    return _lerp_color(colors[idx], colors[idx + 1], frac)
+
+
 def gradient_text(text_str, colors=None):
-    """Apply vertical fire gradient to multiline text."""
+    """Apply horizontal fire gradient per-character to multiline text."""
     if not HAS_RICH:
         return text_str
     if colors is None:
-        colors = FIRE_COLORS
+        colors = FIRE_GRADIENT
 
     lines = text_str.split("\n")
     rich_text = Text()
-    n = len(lines)
+
+    # Find max visible width for horizontal gradient
+    max_width = max((len(line) for line in lines), default=1)
+
     for i, line in enumerate(lines):
-        # Map line index to color gradient
-        idx = int(i / max(n - 1, 1) * (len(colors) - 1))
-        rich_text.append(line + "\n", style=colors[idx])
+        for j, ch in enumerate(line):
+            if ch == " ":
+                rich_text.append(ch)
+            else:
+                # Horizontal position drives the gradient
+                t = j / max(max_width - 1, 1)
+                # Slight vertical shift: top lines are brighter
+                v_shift = (1.0 - i / max(len(lines) - 1, 1)) * 0.2
+                t_adjusted = max(0.0, min(1.0, t + v_shift))
+                r, g, b = _sample_gradient(colors, t_adjusted)
+                rich_text.append(ch, style=f"bold rgb({r},{g},{b})")
+        rich_text.append("\n")
+
     return rich_text
 
 
