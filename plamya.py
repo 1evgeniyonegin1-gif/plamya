@@ -502,8 +502,29 @@ def interactive():
 
 # ── Entry ────────────────────────────────────────────────────────
 
+def _enable_windows_ansi():
+    """Enable ANSI escape codes in Windows terminal (PowerShell/cmd)."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        # STD_OUTPUT_HANDLE = -11
+        handle = kernel32.GetStdHandle(-11)
+        # Get current mode
+        mode = ctypes.c_ulong()
+        kernel32.GetConsoleMode(handle, ctypes.byref(mode))
+        # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+        # ENABLE_PROCESSED_OUTPUT = 0x0001
+        new_mode = mode.value | 0x0004 | 0x0001
+        kernel32.SetConsoleMode(handle, new_mode)
+    except Exception:
+        pass
+
+
 def main():
     if sys.platform == "win32":
+        _enable_windows_ansi()
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
