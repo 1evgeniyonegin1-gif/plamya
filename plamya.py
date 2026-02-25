@@ -35,13 +35,14 @@ console = Console(color_system="truecolor") if HAS_RICH else None
 # ── Fire gradient ────────────────────────────────────────────────
 
 FIRE_GRADIENT = [
-    (255, 80, 20),    # bright red-orange
-    (255, 110, 30),   # orange
-    (255, 140, 40),   # warm orange
-    (255, 170, 50),   # amber
-    (255, 200, 60),   # gold
-    (255, 230, 80),   # yellow
-    (255, 245, 140),  # bright yellow
+    (255, 50, 0),     # red
+    (255, 100, 0),    # red-orange
+    (255, 150, 20),   # orange
+    (255, 190, 40),   # amber
+    (255, 220, 60),   # gold
+    (255, 240, 100),  # yellow
+    (255, 255, 160),  # hot white-yellow
+    (255, 255, 220),  # white-hot
 ]
 
 
@@ -62,7 +63,7 @@ def _sample_gradient(colors, t):
 
 
 def gradient_text(text_str, colors=None):
-    """Apply horizontal fire gradient per-character to multiline text."""
+    """Apply fire gradient per-character across visible content."""
     if not HAS_RICH:
         return text_str
     if colors is None:
@@ -71,21 +72,37 @@ def gradient_text(text_str, colors=None):
     lines = text_str.split("\n")
     rich_text = Text()
 
-    # Find max visible width for horizontal gradient
-    max_width = max((len(line) for line in lines), default=1)
+    # Collect all non-space character positions across ALL lines
+    # to compute gradient over the full visible bounding box
+    total_chars = 0
+    char_map = []  # (line_idx, char_in_line, total_char_idx, ch)
+    for i, line in enumerate(lines):
+        stripped = line.rstrip()
+        first = len(stripped) - len(stripped.lstrip())
+        last = len(stripped)
+        for j in range(len(line)):
+            if first <= j < last and line[j] != " ":
+                char_map.append((i, j, total_chars, line[j]))
+                total_chars += 1
 
+    total_chars = max(total_chars, 1)
+    # Build a lookup: (line, col) -> gradient position
+    gradient_pos = {}
+    for line_idx, col, char_idx, ch in char_map:
+        gradient_pos[(line_idx, col)] = char_idx / max(total_chars - 1, 1)
+
+    n_lines = max(len(lines) - 1, 1)
     for i, line in enumerate(lines):
         for j, ch in enumerate(line):
-            if ch == " ":
-                rich_text.append(ch)
-            else:
-                # Horizontal position drives the gradient
-                t = j / max(max_width - 1, 1)
-                # Slight vertical shift: top lines are brighter
-                v_shift = (1.0 - i / max(len(lines) - 1, 1)) * 0.2
-                t_adjusted = max(0.0, min(1.0, t + v_shift))
-                r, g, b = _sample_gradient(colors, t_adjusted)
+            if (i, j) in gradient_pos:
+                t = gradient_pos[(i, j)]
+                # Slight vertical shift: top = brighter tip, bottom = ember base
+                v = (i / n_lines) * 0.15
+                t_adj = max(0.0, min(1.0, t - v))
+                r, g, b = _sample_gradient(colors, t_adj)
                 rich_text.append(ch, style=f"bold rgb({r},{g},{b})")
+            else:
+                rich_text.append(ch)
         rich_text.append("\n")
 
     return rich_text
