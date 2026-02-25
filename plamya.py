@@ -51,95 +51,137 @@ except ImportError:
 
 console = Console(color_system="truecolor") if HAS_RICH else None
 
-# ── Fire gradient ────────────────────────────────────────────────
+# ── Phoenix Art ──────────────────────────────────────────────────
 
-FIRE_GRADIENT = [
-    (255, 50, 0),     # red
-    (255, 100, 0),    # red-orange
-    (255, 150, 20),   # orange
-    (255, 190, 40),   # amber
-    (255, 220, 60),   # gold
-    (255, 240, 100),  # yellow
-    (255, 255, 160),  # hot white-yellow
-    (255, 255, 220),  # white-hot
-]
-
-
-def _lerp_color(c1, c2, t):
-    """Linearly interpolate between two RGB tuples."""
-    return tuple(int(a + (b - a) * t) for a, b in zip(c1, c2))
+# Color tokens for Rich markup
+F = "#ff5500"       # fire / flames
+G = "#ffaa00"       # glow / amber
+W = "#ffdd44"       # warm yellow
+H = "#ffeeaa"       # hot white
+M = "#888899"       # metal / body
+D = "#556677"       # dark metal
+C = "#00ccff"       # cyan / reactor core
+E = "#44ff88"       # green / energy lines
+R = "#ff3333"       # red / exposed wires
+DIM = "#555566"     # dim structural
 
 
-def _sample_gradient(colors, t):
-    """Sample a color from gradient at position t (0..1)."""
-    t = max(0.0, min(1.0, t))
-    segment = t * (len(colors) - 1)
-    idx = int(segment)
-    frac = segment - idx
-    if idx >= len(colors) - 1:
-        return colors[-1]
-    return _lerp_color(colors[idx], colors[idx + 1], frac)
-
-
-def gradient_text(text_str, colors=None):
-    """Apply fire gradient per-character across visible content."""
+def get_phoenix_art():
+    """Build the mechanical phoenix as Rich Text with per-part coloring."""
     if not HAS_RICH:
-        return text_str
-    if colors is None:
-        colors = FIRE_GRADIENT
-
-    lines = text_str.split("\n")
-    rich_text = Text()
-
-    # Collect all non-space character positions across ALL lines
-    # to compute gradient over the full visible bounding box
-    total_chars = 0
-    char_map = []  # (line_idx, char_in_line, total_char_idx, ch)
-    for i, line in enumerate(lines):
-        stripped = line.rstrip()
-        first = len(stripped) - len(stripped.lstrip())
-        last = len(stripped)
-        for j in range(len(line)):
-            if first <= j < last and line[j] != " ":
-                char_map.append((i, j, total_chars, line[j]))
-                total_chars += 1
-
-    total_chars = max(total_chars, 1)
-    # Build a lookup: (line, col) -> gradient position
-    gradient_pos = {}
-    for line_idx, col, char_idx, ch in char_map:
-        gradient_pos[(line_idx, col)] = char_idx / max(total_chars - 1, 1)
-
-    n_lines = max(len(lines) - 1, 1)
-    for i, line in enumerate(lines):
-        for j, ch in enumerate(line):
-            if (i, j) in gradient_pos:
-                t = gradient_pos[(i, j)]
-                # Slight vertical shift: top = brighter tip, bottom = ember base
-                v = (i / n_lines) * 0.15
-                t_adj = max(0.0, min(1.0, t - v))
-                r, g, b = _sample_gradient(colors, t_adj)
-                rich_text.append(ch, style=f"bold rgb({r},{g},{b})")
-            else:
-                rich_text.append(ch)
-        rich_text.append("\n")
-
-    return rich_text
-
-
-def get_banner():
-    """Generate the PLAMYA figlet banner with fire gradient."""
-    if HAS_FIGLET:
-        raw = pyfiglet.figlet_format("PLAMYA", font="slant")
-    else:
-        raw = (
-            "    ____  __    ___    __  ____  _____\n"
-            "   / __ \\/ /   /   |  /  |/  /\\ \\/ /   |\n"
-            "  / /_/ / /   / /| | / /|_/ /  \\  / /| |\n"
-            " / ____/ /___/ ___ |/ /  / /   / / ___ |\n"
-            "/_/   /_____/_/  |_/_/  /_/   /_/_/  |_|\n"
+        return (
+            "              .  *  .\n"
+            "          . *  /|\\  * .\n"
+            "        *    / | \\    *\n"
+            "     ~~////===[@]===\\\\\\\\~~\n"
+            "       //  /  |  \\  \\\\\n"
+            "      /   / __|__ \\   \\\n"
+            "          |_|   |_|\n"
+            "          _|_   _|_\n"
+            "\n"
+            "    P L A M Y A  v" + VERSION + "\n"
+            '    "From ashes, autonomy."\n'
         )
-    return raw.rstrip("\n")
+
+    t = Text()
+
+    def a(text, color):
+        t.append(text, style=f"bold {color}")
+
+    def d(text):
+        t.append(text)
+
+    # Line 1: flame tips
+    d("                  ")
+    a(".", F)
+    d("  ")
+    a("*", W)
+    d("  ")
+    a(".", F)
+    d("\n")
+
+    # Line 2: upper flames
+    d("              ")
+    a(". ", G)
+    a("*", W)
+    d("  ")
+    a("/", F)
+    a("|", H)
+    a("\\", F)
+    d("  ")
+    a("*", W)
+    a(" .", G)
+    d("\n")
+
+    # Line 3: flame body
+    d("            ")
+    a("*", W)
+    d("    ")
+    a("/", F)
+    d(" ")
+    a("|", H)
+    d(" ")
+    a("\\", F)
+    d("    ")
+    a("*", W)
+    d("\n")
+
+    # Line 4: wings + reactor core (the main line)
+    d("       ")
+    a("~~", DIM)
+    a("////", M)
+    a("===", D)
+    a("[", M)
+    a("@", C)
+    a("]", M)
+    a("===", D)
+    a("\\\\\\\\", M)
+    a("~~", DIM)
+    d("\n")
+
+    # Line 5: wing feathers
+    d("         ")
+    a("//", M)
+    d("  ")
+    a("/", D)
+    d("  ")
+    a("|", E)
+    d("  ")
+    a("\\", D)
+    d("  ")
+    a("\\\\", M)
+    d("\n")
+
+    # Line 6: lower body + exposed wires
+    d("        ")
+    a("/", M)
+    d("   ")
+    a("/", D)
+    d(" ")
+    a("__|__", DIM)
+    d(" ")
+    a("\\", D)
+    d("   ")
+    a("\\", M)
+    d("\n")
+
+    # Line 7: legs
+    d("            ")
+    a("|_|", D)
+    d("   ")
+    a("|_|", D)
+    d("\n")
+
+    # Line 8: feet / base with exposed wires
+    d("            ")
+    a("_|", R)
+    a("_", DIM)
+    d("   ")
+    a("_", DIM)
+    a("|_", R)
+    d("\n")
+
+    return t
 
 
 # ── Status helpers ───────────────────────────────────────────────
@@ -209,18 +251,30 @@ def check_forge():
 # ── Commands (Rich version) ──────────────────────────────────────
 
 def print_banner():
-    """Print the fire-gradient banner."""
+    """Print the mechanical phoenix banner."""
     if not HAS_RICH:
-        print("\n" + get_banner())
-        print('  "From ashes, autonomy."  v' + VERSION + "\n")
+        print(get_phoenix_art())
         return
 
-    banner_text = gradient_text(get_banner())
+    phoenix = get_phoenix_art()
     console.print()
-    console.print(banner_text, justify="center")
-    tagline = Text()
-    tagline.append('"From ashes, autonomy."', style="dim italic")
-    tagline.append(f"  v{VERSION}", style="dim")
+    console.print(phoenix, justify="center")
+
+    # Title line with fire gradient
+    title = Text()
+    plamya = "P L A M Y A"
+    fire_colors = ["#ff3300", "#ff5500", "#ff7700", "#ff9900", "#ffbb00",
+                   "#ffcc00", "#ffdd22", "#ffee44", "#ffff66", "#ffff99", "#ffffcc"]
+    for i, ch in enumerate(plamya):
+        if ch == " ":
+            title.append(ch)
+        else:
+            ci = int(i / max(len(plamya) - 1, 1) * (len(fire_colors) - 1))
+            title.append(ch, style=f"bold {fire_colors[ci]}")
+    title.append(f"   v{VERSION}", style="dim")
+    console.print(title, justify="center")
+
+    tagline = Text('"From ashes, autonomy."', style="dim italic")
     console.print(tagline, justify="center")
     console.print()
 
