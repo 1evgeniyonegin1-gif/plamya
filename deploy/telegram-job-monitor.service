@@ -1,0 +1,30 @@
+[Unit]
+Description=Telegram Job Monitor (APEXFLOW Freelance Engine)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/apexflow
+Environment="PYTHONPATH=/root/apexflow"
+Environment="TELEGRAM_SESSION_STRING="
+Environment="TELEGRAM_API_ID="
+Environment="TELEGRAM_API_HASH="
+
+ExecStart=/root/apexflow/venv/bin/python3 /root/apexflow/scripts/run_job_monitor.py
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=telegram-job-monitor
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+{
+  "quality_score": 50,
+  "factual_accuracy": "unknown",
+  "readability": "medium",
+  "completeness": "partial",
+  "ai_words_found": [],
+  "suggestions": [
+    "Автоматическая проверка не удалась"
+  ],
+  "verdict": "approve"
+}

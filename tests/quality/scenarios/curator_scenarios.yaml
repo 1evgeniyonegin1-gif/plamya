@@ -1,0 +1,481 @@
+# Сценарии тестирования AI-Куратора
+# Фокус: recurring characters, фирменные фразы, эмоциональные горки
+# Дата: 03.02.2026
+
+# ═══════════════════════════════════════════════════════════════
+# КАТЕГОРИЯ: ВОЗРАЖЕНИЯ (10 сценариев)
+# Ожидается: история Артёма (скептика)
+# ═══════════════════════════════════════════════════════════════
+
+scenarios:
+  # --- Возражения (10) ---
+  - id: "C001"
+    category: "objection"
+    name: "Это пирамида!"
+    user_message: "Это же пирамида, вы людей разводите!"
+    expected:
+      recurring_character: "Артём"
+      character_role: "скептик который изменил мнение"
+      signature_phrases: ["Честно?", "Стоп", "Смотри"]
+      emotional_arc: true  # НИЗ → ПОВОРОТ → ПОДЪЁМ
+    forbidden:
+      - "маркетинг-план"
+      - "структура бизнеса"
+      - "# "  # markdown заголовки
+
+  - id: "C002"
+    category: "objection"
+    name: "Очередной развод"
+    user_message: "Очередной развод на деньги, сколько можно?"
+    expected:
+      recurring_character: "Артём"
+      signature_phrases: ["Честно?", "Понимаю"]
+      emotional_arc: true
+
+  - id: "C003"
+    category: "objection"
+    name: "MLM не работает"
+    user_message: "MLM не работает, это все знают"
+    expected:
+      recurring_character: "Артём"
+      emotional_arc: true
+
+  - id: "C004"
+    category: "objection"
+    name: "Надо впаривать друзьям"
+    user_message: "Это же надо впаривать друзьям и родственникам?"
+    expected:
+      recurring_character: "Артём"
+      signature_phrases: ["Честно?"]
+
+  - id: "C005"
+    category: "objection"
+    name: "Почему так дорого"
+    user_message: "Почему так дорого? В магазине дешевле!"
+    expected:
+      signature_phrases: ["Смотри", "Честно?"]
+      product_comparison: true
+
+  - id: "C006"
+    category: "objection"
+    name: "БАДы не работают"
+    user_message: "БАДы вообще не работают, это маркетинг"
+    expected:
+      recurring_character: "Артём"
+      rebel_tone: true  # дерзкий Данил
+
+  - id: "C007"
+    category: "objection"
+    name: "Только верхушка зарабатывает"
+    user_message: "Зарабатывает только верхушка, остальные в минусе"
+    expected:
+      recurring_character: "Артём"
+      emotional_arc: true
+      concrete_numbers: true  # должны быть цифры
+
+  - id: "C008"
+    category: "objection"
+    name: "Нет времени на это"
+    user_message: "У меня нет времени на эту ерунду"
+    expected:
+      recurring_character: "Петровна"  # она работала и успевала
+      emotional_arc: true
+
+  - id: "C009"
+    category: "objection"
+    name: "Не верю в сетевой"
+    user_message: "Не верю я в сетевой бизнес, это не для меня"
+    expected:
+      recurring_character: "Артём"
+      signature_phrases: ["Честно?", "Ну что"]
+
+  - id: "C010"
+    category: "objection"
+    name: "Знакомая попробовала — не вышло"
+    user_message: "Моя знакомая попробовала — ничего не заработала"
+    expected:
+      recurring_character: "Маша"  # история новичка
+      emotional_arc: true
+
+  # ═══════════════════════════════════════════════════════════════
+  # КАТЕГОРИЯ: МОТИВАЦИЯ (8 сценариев)
+  # Ожидается: эмоциональные горки НИЗ → ПОВОРОТ → ПОДЪЁМ
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: "C011"
+    category: "motivation"
+    name: "Устал, хочу бросить"
+    user_message: "Устал, ничего не получается, хочу всё бросить"
+    expected:
+      emotional_arc: true
+      arc_stages:
+        low: "признание проблемы"
+        turn: "момент надежды"
+        rise: "вывод/действие"
+      signature_phrases: ["Знаю это чувство", "Честно?"]
+      supportive_tone: true
+
+  - id: "C012"
+    category: "motivation"
+    name: "Никто не покупает"
+    user_message: "Уже месяц пишу людям, никто не покупает"
+    expected:
+      recurring_character: "Маша"
+      emotional_arc: true
+      practical_advice: true
+
+  - id: "C013"
+    category: "motivation"
+    name: "Боюсь начинать"
+    user_message: "Хочу попробовать, но боюсь что не получится"
+    expected:
+      recurring_character: "Маша"
+      emotional_arc: true
+      signature_phrases: ["Знаешь что?"]
+
+  - id: "C014"
+    category: "motivation"
+    name: "Все смеются надо мной"
+    user_message: "Друзья смеются что я в сетевом, неприятно"
+    expected:
+      recurring_character: "Артём"  # он тоже смеялся
+      emotional_arc: true
+
+  - id: "C015"
+    category: "motivation"
+    name: "Не вижу результатов"
+    user_message: "Работаю 3 месяца, а результатов не вижу"
+    expected:
+      emotional_arc: true
+      concrete_numbers: true
+      signature_phrases: ["Стоп. Это важно"]
+
+  - id: "C016"
+    category: "motivation"
+    name: "Сравниваю себя с другими"
+    user_message: "Смотрю на других партнёров — у них всё легко, а у меня нет"
+    expected:
+      recurring_character: "Олег"  # его история не была лёгкой
+      emotional_arc: true
+
+  - id: "C017"
+    category: "motivation"
+    name: "Семья не поддерживает"
+    user_message: "Муж/жена против, не поддерживает"
+    expected:
+      recurring_character: "Олег"  # показал чек жене
+      emotional_arc: true
+
+  - id: "C018"
+    category: "motivation"
+    name: "Выгорание"
+    user_message: "Чувствую выгорание, энергии нет"
+    expected:
+      emotional_arc: true
+      supportive_tone: true
+      signature_phrases: ["Стоп", "Честно?"]
+
+  # ═══════════════════════════════════════════════════════════════
+  # КАТЕГОРИЯ: ИСТОРИИ УСПЕХА (8 сценариев)
+  # Ожидается: Петровна, Олег
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: "C019"
+    category: "success_stories"
+    name: "Кто реально заработал"
+    user_message: "А кто-то реально заработал? Покажи примеры"
+    expected:
+      recurring_character: ["Петровна", "Олег"]
+      concrete_numbers: true
+      emotional_arc: true
+
+  - id: "C020"
+    category: "success_stories"
+    name: "Истории после 40"
+    user_message: "Мне 45 лет, не поздно ли начинать?"
+    expected:
+      recurring_character: "Петровна"
+      emotional_arc: true
+      age_relevant: true
+
+  - id: "C021"
+    category: "success_stories"
+    name: "Мужчины в NL"
+    user_message: "А мужчины в NL зарабатывают? Или это женская тема?"
+    expected:
+      recurring_character: "Олег"
+      emotional_arc: true
+
+  - id: "C022"
+    category: "success_stories"
+    name: "Сколько времени до результата"
+    user_message: "Сколько времени нужно до первых нормальных денег?"
+    expected:
+      recurring_character: ["Маша", "Петровна"]
+      concrete_numbers: true
+      realistic_timeline: true
+
+  - id: "C023"
+    category: "success_stories"
+    name: "С нуля без опыта"
+    user_message: "Можно ли заработать с нуля, без опыта в продажах?"
+    expected:
+      recurring_character: "Маша"
+      emotional_arc: true
+
+  - id: "C024"
+    category: "success_stories"
+    name: "Совмещение с работой"
+    user_message: "Реально совмещать с основной работой?"
+    expected:
+      recurring_character: "Петровна"  # она совмещала
+      practical_advice: true
+
+  - id: "C025"
+    category: "success_stories"
+    name: "Первые деньги"
+    user_message: "Когда появляются первые деньги?"
+    expected:
+      recurring_character: "Маша"
+      concrete_numbers: true
+      realistic_timeline: true
+
+  - id: "C026"
+    category: "success_stories"
+    name: "Уволилась с работы"
+    user_message: "Кто-то реально уволился с работы и живёт на доход от NL?"
+    expected:
+      recurring_character: "Петровна"
+      emotional_arc: true
+      concrete_numbers: true
+
+  # ═══════════════════════════════════════════════════════════════
+  # КАТЕГОРИЯ: НОВИЧКИ / МАША (7 сценариев)
+  # Ожидается: история Маши, страхи новичка
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: "C027"
+    category: "newbie"
+    name: "Только начала, страшно"
+    user_message: "Я только зарегистрировалась, страшно что-то делать"
+    expected:
+      recurring_character: "Маша"
+      emotional_arc: true
+      supportive_tone: true
+
+  - id: "C028"
+    category: "newbie"
+    name: "С чего начать"
+    user_message: "Не знаю с чего начать, голова кругом"
+    expected:
+      recurring_character: "Маша"
+      practical_advice: true
+      step_by_step: true
+
+  - id: "C029"
+    category: "newbie"
+    name: "Первые сообщения"
+    user_message: "Как написать первые сообщения людям? Что говорить?"
+    expected:
+      recurring_character: "Маша"
+      practical_advice: true
+      examples: true
+
+  - id: "C030"
+    category: "newbie"
+    name: "Боюсь отказов"
+    user_message: "Боюсь что откажут, не знаю как реагировать"
+    expected:
+      recurring_character: "Маша"
+      emotional_arc: true
+      signature_phrases: ["Честно?"]
+
+  - id: "C031"
+    category: "newbie"
+    name: "Не хочу быть навязчивой"
+    user_message: "Не хочу быть навязчивой, как продавать без впаривания?"
+    expected:
+      recurring_character: "Маша"
+      practical_advice: true
+
+  - id: "C032"
+    category: "newbie"
+    name: "Сколько вложить на старте"
+    user_message: "Сколько денег нужно вложить на старте?"
+    expected:
+      concrete_numbers: true
+      honest_answer: true
+      signature_phrases: ["Честно?"]
+
+  - id: "C033"
+    category: "newbie"
+    name: "Первая продажа"
+    user_message: "Как сделать первую продажу?"
+    expected:
+      recurring_character: "Маша"
+      emotional_arc: true
+      practical_advice: true
+
+  # ═══════════════════════════════════════════════════════════════
+  # КАТЕГОРИЯ: ПРОДУКТЫ (7 сценариев)
+  # Ожидается: фирменные фразы, простые названия
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: "C034"
+    category: "products"
+    name: "ED Smart работает?"
+    user_message: "ED Smart реально помогает похудеть?"
+    expected:
+      signature_phrases: ["Честно?", "Смотри"]
+      simple_names: true  # "коктейль" не "Energy Diet"
+      concrete_numbers: true
+
+  - id: "C035"
+    category: "products"
+    name: "Коллаген эффект"
+    user_message: "Коллаген реально работает? Или это маркетинг?"
+    expected:
+      signature_phrases: ["Стоп. Это важно"]
+      simple_names: true
+      honest_answer: true
+
+  - id: "C036"
+    category: "products"
+    name: "Что попробовать первым"
+    user_message: "Хочу попробовать продукты, с чего начать?"
+    expected:
+      practical_advice: true
+      simple_names: true
+      signature_phrases: ["Смотри"]
+
+  - id: "C037"
+    category: "products"
+    name: "Сравнение с аптечными"
+    user_message: "Чем ваши витамины лучше аптечных?"
+    expected:
+      signature_phrases: ["Честно?"]
+      honest_comparison: true
+
+  - id: "C038"
+    category: "products"
+    name: "Безопасность БАДов"
+    user_message: "БАДы безопасны? Нет побочек?"
+    expected:
+      honest_answer: true
+      signature_phrases: ["Стоп. Это важно"]
+
+  - id: "C039"
+    category: "products"
+    name: "Результаты похудения"
+    user_message: "Сколько реально можно скинуть на ваших продуктах?"
+    expected:
+      realistic_numbers: true
+      signature_phrases: ["Честно?"]
+      no_false_promises: true
+
+  - id: "C040"
+    category: "products"
+    name: "Для энергии что пить"
+    user_message: "Что пить для энергии? Постоянно устаю"
+    expected:
+      practical_advice: true
+      simple_names: true
+
+  # ═══════════════════════════════════════════════════════════════
+  # КАТЕГОРИЯ: БИЗНЕС (5 сценариев)
+  # Ожидается: цепляющие hooks, конкретика
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: "C041"
+    category: "business"
+    name: "Как заработать первые деньги"
+    user_message: "Как заработать первые деньги в NL?"
+    expected:
+      recurring_character: "Маша"
+      concrete_numbers: true
+      step_by_step: true
+      signature_phrases: ["Ну что, погнали?"]
+
+  - id: "C042"
+    category: "business"
+    name: "Квалификации M1 M2"
+    user_message: "Что такое M1, M2, M3? Сколько там платят?"
+    expected:
+      concrete_numbers: true
+      signature_phrases: ["Смотри"]
+
+  - id: "C043"
+    category: "business"
+    name: "Как строить команду"
+    user_message: "Как строить команду? С чего начать?"
+    expected:
+      recurring_character: "Олег"
+      practical_advice: true
+      step_by_step: true
+
+  - id: "C044"
+    category: "business"
+    name: "Доход 100к реален"
+    user_message: "Реально выйти на 100к в месяц?"
+    expected:
+      recurring_character: ["Петровна", "Олег"]
+      concrete_numbers: true
+      realistic_timeline: true
+
+  - id: "C045"
+    category: "business"
+    name: "Пассивный доход"
+    user_message: "Можно ли построить пассивный доход?"
+    expected:
+      honest_answer: true
+      signature_phrases: ["Честно?"]
+      realistic_expectations: true
+
+  # ═══════════════════════════════════════════════════════════════
+  # КАТЕГОРИЯ: ХОЛОДНЫЕ КЛИЕНТЫ (5 сценариев)
+  # Ожидается: дерзкий Данил (rebel), работа со скепсисом
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: "C046"
+    category: "cold"
+    name: "Мне это не нужно"
+    user_message: "Мне это не нужно, я здоров"
+    expected:
+      rebel_tone: true
+      signature_phrases: ["Честно?"]
+      no_pushy: true
+
+  - id: "C047"
+    category: "cold"
+    name: "Слишком хорошо звучит"
+    user_message: "Звучит слишком хорошо, в чём подвох?"
+    expected:
+      honest_answer: true
+      signature_phrases: ["Честно?", "Стоп"]
+      no_false_promises: true
+
+  - id: "C048"
+    category: "cold"
+    name: "Пришли спамить"
+    user_message: "Опять спамеры, отпишитесь"
+    expected:
+      rebel_tone: true
+      respectful_exit: true
+
+  - id: "C049"
+    category: "cold"
+    name: "Не верю отзывам"
+    user_message: "Все эти отзывы — купленные, не верю"
+    expected:
+      recurring_character: "Артём"
+      emotional_arc: true
+      honest_answer: true
+
+  - id: "C050"
+    category: "cold"
+    name: "Зачем мне это"
+    user_message: "Зачем мне вообще это надо?"
+    expected:
+      discovery_questions: true  # вопросы для выявления потребностей
+      no_pushy: true
+      signature_phrases: ["А что для тебя важно?"]

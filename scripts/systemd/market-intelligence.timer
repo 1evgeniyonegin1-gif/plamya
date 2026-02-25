@@ -1,0 +1,14 @@
+[Unit]
+Description=Daily Market Intelligence Update Timer
+Requires=market-intelligence.service
+
+[Timer]
+# Запуск каждый день в 06:00 UTC (09:00 по Москве)
+OnCalendar=daily
+OnCalendar=*-*-* 06:00:00
+
+# Запустить сразу если пропустили время
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #09090B;
+  --ember: #18181B;
+  --ash: #27272A;
+  --smoke: #3F3F46;
+  --flame: #EF4444;
+  --blaze: #F97316;
+  --gold: #EAB308;
+  --silk: #FAFAF9;
+  --pearl: #A1A1AA;
+  --mist: #71717A;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--void);
+  color: var(--silk);
+  overflow-x: hidden;
+  min-height: 100vh;
+  background-image: radial-gradient(circle at 50% 0%, rgba(239,68,68,0.06) 0%, transparent 50%);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--smoke);
+  border-radius: 4px;
+}
+
+/* Card */
+@layer components {
+  .card {
+    @apply bg-ember border border-smoke/50 rounded-2xl p-4;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-200;
+  }
+  .card-hover:active {
+    @apply scale-[0.98];
+  }
+
+  .btn-fire {
+    @apply bg-gradient-to-r from-flame to-blaze text-white font-semibold
+           py-3 px-6 rounded-xl transition-all duration-200;
+  }
+  .btn-fire:hover {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+  .btn-fire:active {
+    @apply scale-95;
+  }
+
+  .btn-ghost {
+    @apply bg-ash/50 text-pearl border border-smoke/50
+           py-2 px-4 rounded-xl transition-all duration-200;
+  }
+  .btn-ghost:hover {
+    @apply text-silk bg-ash;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-pending {
+    @apply badge bg-amber/15 text-amber;
+  }
+  .badge-published {
+    @apply badge bg-jade/15 text-jade;
+  }
+  .badge-rejected {
+    @apply badge bg-flame/15 text-flame;
+  }
+  .badge-scheduled {
+    @apply badge bg-water/15 text-water;
+  }
+  .badge-draft {
+    @apply badge bg-smoke/30 text-pearl;
+  }
+
+  /* Shimmer skeleton */
+  .skeleton {
+    @apply bg-ash rounded-xl relative overflow-hidden;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(239, 68, 68, 0.04) 40%,
+      rgba(249, 115, 22, 0.06) 50%,
+      rgba(239, 68, 68, 0.04) 60%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Tab indicator */
+  .tab-indicator {
+    @apply h-0.5 rounded-full;
+    background: linear-gradient(90deg, var(--flame), var(--gold));
+  }
+}

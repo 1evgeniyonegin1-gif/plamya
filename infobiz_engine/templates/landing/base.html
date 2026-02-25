@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ hero_title }} — {{ course_title }}</title>
+    <meta name="description" content="{{ hero_subtitle }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+        details summary { cursor: pointer; }
+        details summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <!-- Hero -->
+    <section class="gradient-bg text-white py-20 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
+                {{ hero_title }}
+            </h1>
+            <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
+                {{ hero_subtitle }}
+            </p>
+            <a href="#pricing" class="inline-block bg-white text-purple-700 font-bold text-lg px-8 py-4 rounded-xl hover:bg-gray-100 transition-colors">
+                {{ cta_text }}
+            </a>
+        </div>
+    </section>
+
+    <!-- Problems -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-10">{{ problem_title }}</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                {% for problem in problems %}
+                <div class="bg-white p-6 rounded-xl card-shadow border-l-4 border-red-400">
+                    <p class="text-gray-700">{{ problem }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution / Benefits -->
+    <section class="py-16 px-4 bg-white">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-10">{{ solution_title }}</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                {% for benefit in benefits %}
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">{{ benefit.icon }}</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">{{ benefit.title }}</h3>
+                    <p class="text-gray-600">{{ benefit.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Program -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4">Программа курса</h2>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">{{ program_intro }}</p>
+            <div class="space-y-4">
+                {% for module in modules %}
+                <details class="bg-white rounded-xl card-shadow overflow-hidden">
+                    <summary class="px-6 py-4 font-semibold text-lg flex items-center justify-between">
+                        <span>Модуль {{ module.module_num }}. {{ module.title }}</span>
+                        <svg class="w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4">
+                        <p class="text-gray-600 mb-3">{{ module.description }}</p>
+                        <ul class="space-y-2">
+                            {% for lesson in module.lessons %}
+                            <li class="flex items-center text-gray-700">
+                                <span class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-xs text-purple-700 font-bold mr-3">{{ lesson.lesson_num }}</span>
+                                {{ lesson.title }}
+                                <span class="ml-auto text-sm text-gray-400">{{ lesson.duration_min }} мин</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </details>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Author -->
+    <section class="py-16 px-4 bg-white">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-10">Об авторе</h2>
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="w-32 h-32 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center text-white text-4xl font-bold">
+                    {{ author_initials }}
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2">{{ author_name }}</h3>
+                    <p class="text-gray-600 mb-4">{{ author_bio }}</p>
+                    <ul class="space-y-1">
+                        {% for cred in author_credentials %}
+                        <li class="text-gray-700 flex items-center">
+                            <span class="text-green-500 mr-2">&#10003;</span> {{ cred }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    {% if testimonials %}
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-10">Отзывы</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                {% for t in testimonials %}
+                <div class="bg-white p-6 rounded-xl card-shadow">
+                    <p class="text-gray-700 mb-4">&laquo;{{ t.text }}&raquo;</p>
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">{{ t.name }}</span>
+                        <span class="text-sm text-green-600">{{ t.result }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-16 px-4 bg-white">
+        <div class="max-w-lg mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-6">Начни сейчас</h2>
+            <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-2xl card-shadow">
+                <p class="text-5xl font-extrabold text-purple-700 mb-2">{{ price_rub }} &#8381;</p>
+                <p class="text-gray-500 mb-6">Полный доступ ко всем урокам и материалам</p>
+                {% if guarantee_text %}
+                <p class="text-sm text-gray-600 mb-6">{{ guarantee_text }}</p>
+                {% endif %}
+                {% if payment_url %}
+                <a href="{{ payment_url }}" class="inline-block gradient-bg text-white font-bold text-lg px-10 py-4 rounded-xl hover:opacity-90 transition-opacity w-full">
+                    {{ cta_text }}
+                </a>
+                {% else %}
+                <button disabled class="inline-block bg-gray-400 text-white font-bold text-lg px-10 py-4 rounded-xl w-full cursor-not-allowed">
+                    Скоро открытие продаж
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    {% if faq %}
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-10">Частые вопросы</h2>
+            <div class="space-y-4">
+                {% for item in faq %}
+                <details class="bg-white rounded-xl card-shadow">
+                    <summary class="px-6 py-4 font-semibold flex items-center justify-between">
+                        {{ item.question }}
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4 text-gray-600">{{ item.answer }}</div>
+                </details>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 px-4 text-center text-sm">
+        <p>&copy; 2026 {{ course_title }}. Все права защищены.</p>
+    </footer>
+
+</body>
+</html>
