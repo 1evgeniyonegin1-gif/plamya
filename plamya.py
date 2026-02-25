@@ -100,23 +100,22 @@ def _colorize_block_char(ch):
     return FLAME_BASE  # letters, other chars
 
 
-def _is_near_letter(row, col, radius=2):
-    """Check if position (row, col) is within radius of a non-space logo char."""
-    for dr in range(-radius, radius + 1):
-        for dc in range(-radius, radius + 1):
-            r, c = row + dr, col + dc
-            if 0 <= r < len(BLOCK_ART) and 0 <= c < len(BLOCK_ART[r]):
-                if BLOCK_ART[r][c] != " ":
-                    return True
-    return False
-
-
-# Pre-seed ember positions so static banner is deterministic per session
-_ember_seed = random.Random(42)
+# Static fire columns — handcrafted torches flanking the logo.
+# Bright core (▓█) in center, dim edges (░▒). 3 chars wide.
+LEFT_FIRE = [
+    "░▓░",
+    "▒▓▒",
+    "░▒░",
+]
+RIGHT_FIRE = [
+    "░▓░",
+    "▒▓▒",
+    "░▒░",
+]
 
 
 def get_banner_art():
-    """Build PLAMYA block art with static ember glow around letters."""
+    """Build PLAMYA block art with fire columns on left and right."""
     if not HAS_RICH:
         lines = BLOCK_ART[:]
         lines.append("")
@@ -124,36 +123,38 @@ def get_banner_art():
         lines.append(f'  "{_get_tagline()}"')
         return "\n".join("    " + l for l in lines) + "\n"
 
-    width = max(len(line) for line in BLOCK_ART)
-    # Add 1 row above and 1 below for ember glow
-    pad_top = 1
-    total_rows = len(BLOCK_ART) + 2  # +1 top, +1 bottom
-
     t = Text()
-    rng = random.Random(42)  # fixed seed = same embers every time
+    gap = "  "  # space between fire and logo
+    logo_width = max(len(line) for line in BLOCK_ART)
 
-    for display_row in range(total_rows):
-        art_row = display_row - pad_top  # map to BLOCK_ART index
+    for row in range(len(BLOCK_ART)):
+        lf = LEFT_FIRE[row] if row < len(LEFT_FIRE) else "     "
+        rf = RIGHT_FIRE[row] if row < len(RIGHT_FIRE) else "     "
+        logo = BLOCK_ART[row].ljust(logo_width)  # pad to equal width
 
-        for col in range(width):
-            # Get actual logo char (if in bounds)
-            if 0 <= art_row < len(BLOCK_ART) and col < len(BLOCK_ART[art_row]):
-                ch = BLOCK_ART[art_row][col]
-            else:
-                ch = " "
-
+        # Left fire column (dim)
+        for ch in lf:
             if ch != " ":
-                # Logo character — full color
-                color = _colorize_block_char(ch)
-                t.append(ch, style=f"bold {color}" if color else "")
-            elif _is_near_letter(art_row, col, radius=2):
-                # Near a letter — maybe place a dim ember
-                if rng.random() < 0.15:
-                    ember_ch = rng.choice("░▒")
-                    # Very dim — doesn't compete with logo
-                    t.append(ember_ch, style=f"{FLAME_DIM}")
-                else:
-                    t.append(" ")
+                t.append(ch, style=f"{FLAME_DIM}")
+            else:
+                t.append(" ")
+
+        t.append(gap)
+
+        # Logo (bright)
+        for ch in logo:
+            color = _colorize_block_char(ch)
+            if color:
+                t.append(ch, style=f"bold {color}")
+            else:
+                t.append(ch)
+
+        t.append(gap)
+
+        # Right fire column (dim)
+        for ch in rf:
+            if ch != " ":
+                t.append(ch, style=f"{FLAME_DIM}")
             else:
                 t.append(" ")
 
