@@ -6,6 +6,7 @@ import sys
 import time
 import json
 import shutil
+import random
 from pathlib import Path
 
 VERSION = "0.1.0"
@@ -24,7 +25,6 @@ def _enable_windows_ansi():
         handle = kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
         mode = ctypes.c_ulong()
         kernel32.GetConsoleMode(handle, ctypes.byref(mode))
-        # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
         kernel32.SetConsoleMode(handle, mode.value | 0x0004 | 0x0001)
     except Exception:
         pass
@@ -37,150 +37,87 @@ try:
     from rich.panel import Panel
     from rich.table import Table
     from rich.text import Text
-    from rich.columns import Columns
     from rich import box
     HAS_RICH = True
 except ImportError:
     HAS_RICH = False
 
-try:
-    import pyfiglet
-    HAS_FIGLET = True
-except ImportError:
-    HAS_FIGLET = False
-
 console = Console(color_system="truecolor") if HAS_RICH else None
 
-# ── Phoenix Art ──────────────────────────────────────────────────
+# ── Flame Palette (3 shades like OpenClaw's lobster palette) ─────
 
-# Color tokens for Rich markup
-F = "#ff5500"       # fire / flames
-G = "#ffaa00"       # glow / amber
-W = "#ffdd44"       # warm yellow
-H = "#ffeeaa"       # hot white
-M = "#888899"       # metal / body
-D = "#556677"       # dark metal
-C = "#00ccff"       # cyan / reactor core
-E = "#44ff88"       # green / energy lines
-R = "#ff3333"       # red / exposed wires
-DIM = "#555566"     # dim structural
+FLAME_BRIGHT = "#FF7A3D"    # bright flame (solid blocks █)
+FLAME_BASE   = "#FF5A2D"    # base flame (half blocks ▀▄)
+FLAME_DIM    = "#D14A22"    # dim ember (shade blocks ░)
+MUTED        = "#8B7F77"    # structure / borders
+EMBER        = "#FF8A5B"    # warm info accent
+
+# ── Block Art Banner ─────────────────────────────────────────────
+
+# "PLAMYA" spelled in 3-row block characters.
+# Each letter is 5 chars wide, separated by 2 spaces.
+# Characters: █ (solid/bright), ▀▄ (half/base), ░ (shade/dim)
+BLOCK_ART = [
+    "█▀▀▀█  █░     ▄▀▀▄   █▄░▄█  █▄ ▄█  ▄▀▀▄",
+    "█▀▀▀█  █░     █▀▀█   █░▀░█   ░█░   █▀▀█",
+    "█░     ▀▀▀▀▀  █  █   █   █   ░█░   █  █",
+]
+
+TAGLINES = [
+    "From ashes, autonomy.",
+    "Your agents just caught fire.",
+    "Secure. Autonomous. Relentless.",
+    "The phoenix protocol is active.",
+    "Four guards. Zero trust. Full autonomy.",
+    "Where prompt injection comes to die.",
+    "Born in fire, forged in code.",
+    "Ashes to agents.",
+    "The ember glows. The forge awaits.",
+    "AI agents with a survival instinct.",
+]
+
+def _get_tagline():
+    """Pick a tagline — holiday-aware + random rotation."""
+    now = time.localtime()
+    m, d = now.tm_mon, now.tm_mday
+    if m == 1 and d == 1:
+        return "New year, new embers."
+    if m == 12 and 24 <= d <= 26:
+        return "Even phoenixes take holidays. Almost."
+    return random.choice(TAGLINES)
 
 
-def get_phoenix_art():
-    """Build the mechanical phoenix as Rich Text with per-part coloring."""
+def _colorize_block_char(ch):
+    """Color each character by type — creates depth effect."""
+    if ch == "█":
+        return FLAME_BRIGHT
+    if ch in ("▀", "▄"):
+        return FLAME_BASE
+    if ch == "░":
+        return FLAME_DIM
+    if ch == " ":
+        return None
+    return FLAME_BASE  # letters, other chars
+
+
+def get_banner_art():
+    """Build PLAMYA block art as Rich Text with per-character coloring."""
     if not HAS_RICH:
-        return (
-            "              .  *  .\n"
-            "          . *  /|\\  * .\n"
-            "        *    / | \\    *\n"
-            "     ~~////===[@]===\\\\\\\\~~\n"
-            "       //  /  |  \\  \\\\\n"
-            "      /   / __|__ \\   \\\n"
-            "          |_|   |_|\n"
-            "          _|_   _|_\n"
-            "\n"
-            "    P L A M Y A  v" + VERSION + "\n"
-            '    "From ashes, autonomy."\n'
-        )
+        lines = BLOCK_ART[:]
+        lines.append("")
+        lines.append(f"  PLAMYA v{VERSION}")
+        lines.append(f'  "{_get_tagline()}"')
+        return "\n".join("    " + l for l in lines) + "\n"
 
     t = Text()
-
-    def a(text, color):
-        t.append(text, style=f"bold {color}")
-
-    def d(text):
-        t.append(text)
-
-    # Line 1: flame tips
-    d("                  ")
-    a(".", F)
-    d("  ")
-    a("*", W)
-    d("  ")
-    a(".", F)
-    d("\n")
-
-    # Line 2: upper flames
-    d("              ")
-    a(". ", G)
-    a("*", W)
-    d("  ")
-    a("/", F)
-    a("|", H)
-    a("\\", F)
-    d("  ")
-    a("*", W)
-    a(" .", G)
-    d("\n")
-
-    # Line 3: flame body
-    d("            ")
-    a("*", W)
-    d("    ")
-    a("/", F)
-    d(" ")
-    a("|", H)
-    d(" ")
-    a("\\", F)
-    d("    ")
-    a("*", W)
-    d("\n")
-
-    # Line 4: wings + reactor core (the main line)
-    d("       ")
-    a("~~", DIM)
-    a("////", M)
-    a("===", D)
-    a("[", M)
-    a("@", C)
-    a("]", M)
-    a("===", D)
-    a("\\\\\\\\", M)
-    a("~~", DIM)
-    d("\n")
-
-    # Line 5: wing feathers
-    d("         ")
-    a("//", M)
-    d("  ")
-    a("/", D)
-    d("  ")
-    a("|", E)
-    d("  ")
-    a("\\", D)
-    d("  ")
-    a("\\\\", M)
-    d("\n")
-
-    # Line 6: lower body + exposed wires
-    d("        ")
-    a("/", M)
-    d("   ")
-    a("/", D)
-    d(" ")
-    a("__|__", DIM)
-    d(" ")
-    a("\\", D)
-    d("   ")
-    a("\\", M)
-    d("\n")
-
-    # Line 7: legs
-    d("            ")
-    a("|_|", D)
-    d("   ")
-    a("|_|", D)
-    d("\n")
-
-    # Line 8: feet / base with exposed wires
-    d("            ")
-    a("_|", R)
-    a("_", DIM)
-    d("   ")
-    a("_", DIM)
-    a("|_", R)
-    d("\n")
-
+    for line in BLOCK_ART:
+        for ch in line:
+            color = _colorize_block_char(ch)
+            if color:
+                t.append(ch, style=f"bold {color}")
+            else:
+                t.append(ch)
+        t.append("\n")
     return t
 
 
@@ -251,30 +188,24 @@ def check_forge():
 # ── Commands (Rich version) ──────────────────────────────────────
 
 def print_banner():
-    """Print the mechanical phoenix banner."""
+    """Print the PLAMYA banner — block art + tagline."""
     if not HAS_RICH:
-        print(get_phoenix_art())
+        print(get_banner_art())
         return
 
-    phoenix = get_phoenix_art()
+    art = get_banner_art()
     console.print()
-    console.print(phoenix, justify="center")
+    console.print(art, justify="center")
 
-    # Title line with fire gradient
+    # Title + version line
     title = Text()
-    plamya = "P L A M Y A"
-    fire_colors = ["#ff3300", "#ff5500", "#ff7700", "#ff9900", "#ffbb00",
-                   "#ffcc00", "#ffdd22", "#ffee44", "#ffff66", "#ffff99", "#ffffcc"]
-    for i, ch in enumerate(plamya):
-        if ch == " ":
-            title.append(ch)
-        else:
-            ci = int(i / max(len(plamya) - 1, 1) * (len(fire_colors) - 1))
-            title.append(ch, style=f"bold {fire_colors[ci]}")
-    title.append(f"   v{VERSION}", style="dim")
+    title.append("\U0001f525 ", style="bold")
+    title.append("PLAMYA", style=f"bold {FLAME_BRIGHT}")
+    title.append(f" v{VERSION}", style=f"{MUTED}")
     console.print(title, justify="center")
 
-    tagline = Text('"From ashes, autonomy."', style="dim italic")
+    # Tagline
+    tagline = Text(_get_tagline(), style=f"italic {FLAME_DIM}")
     console.print(tagline, justify="center")
     console.print()
 
@@ -306,7 +237,7 @@ def cmd_status():
         table,
         title="[bold bright_white]\u2593 The Forge[/bold bright_white]",
         subtitle=f"[dim]{PLAMYA_HOME}[/dim]",
-        border_style="#e8611a",
+        border_style="#FF5A2D",
         box=box.HEAVY,
         padding=(1, 2),
     )
@@ -324,7 +255,7 @@ def cmd_help():
         box=None,
         padding=(0, 3),
     )
-    table.add_column("cmd", style="bold #f28c28", width=12)
+    table.add_column("cmd", style="bold #FF5A2D", width=12)
     table.add_column("desc", style="white")
 
     cmds = [
@@ -353,7 +284,7 @@ def cmd_ignite():
     """Initialize The Forge."""
     if HAS_RICH:
         console.print()
-        console.print("  [bold #f28c28]\u2592\u2592\u2592[/] [bold]Igniting The Forge...[/]")
+        console.print("  [bold #FF5A2D]\u2592\u2592\u2592[/] [bold]Igniting The Forge...[/]")
         console.print()
     else:
         print("\n  >>> Igniting The Forge...\n")
@@ -403,7 +334,7 @@ def cmd_spark():
     """Create a new agent."""
     if HAS_RICH:
         console.print()
-        name = console.input("  [bold #f28c28]?[/] Agent name: ").strip().lower()
+        name = console.input("  [bold #FF5A2D]?[/] Agent name: ").strip().lower()
     else:
         print()
         name = input("  ? Agent name: ").strip().lower()
@@ -480,7 +411,7 @@ def cmd_rise():
     """Deploy."""
     if HAS_RICH:
         console.print()
-        console.print("  [bold #f28c28]\u2592\u2592\u2592[/] [bold]Spreading...[/]")
+        console.print("  [bold #FF5A2D]\u2592\u2592\u2592[/] [bold]Spreading...[/]")
         console.print()
         console.print("  [dim]Deploy is project-specific. See your agent docs.[/]")
         console.print()
@@ -490,7 +421,7 @@ def cmd_rise():
 
 def cmd_version():
     if HAS_RICH:
-        console.print(f"  [bold #f28c28]plamya[/] [dim]{VERSION}[/]")
+        console.print(f"  [bold #FF5A2D]plamya[/] [dim]{VERSION}[/]")
     else:
         print(f"  plamya {VERSION}")
 
@@ -534,7 +465,7 @@ def interactive():
     cmd_status()
     cmd_help()
 
-    prompt = "  [bold #f28c28]plamya[/] [dim]>[/] " if HAS_RICH else "  plamya > "
+    prompt = "  [bold #FF5A2D]plamya[/] [dim]>[/] " if HAS_RICH else "  plamya > "
 
     while True:
         try:
@@ -568,7 +499,7 @@ def interactive():
             dispatch[command]()
         else:
             if HAS_RICH:
-                console.print(f"  [red]?[/] Unknown: [bold]{command}[/]. Type [bold #f28c28]help[/]")
+                console.print(f"  [red]?[/] Unknown: [bold]{command}[/]. Type [bold #FF5A2D]help[/]")
             else:
                 print(f"  ? Unknown: {command}. Type help")
 
