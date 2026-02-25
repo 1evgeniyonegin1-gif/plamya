@@ -58,9 +58,9 @@ EMBER        = "#FF8A5B"    # warm info accent
 # Each letter is 5 chars wide, separated by 2 spaces.
 # Characters: █ (solid/bright), ▀▄ (half/base), ░ (shade/dim)
 BLOCK_ART = [
-    "█▀▀▀█  █░     ▄▀▀▄   █▄░▄█  █▄ ▄█  ▄▀▀▄",
-    "█▀▀▀█  █░     █▀▀█   █░▀░█   ░█░   █▀▀█",
-    "█░     ▀▀▀▀▀  █  █   █   █   ░█░   █  █",
+    "█▀▀▀█  █      ▄▀▀▄   █▄░▄█  █▄ ▄█  ▄▀▀▄",
+    "█▀▀▀█  █      █▀▀█   █░▀░█   ░█░   █▀▀█",
+    "█      ▀▀▀▀▀  █  █   █   █   ░█░   █  █",
 ]
 
 TAGLINES = [
@@ -119,6 +119,92 @@ def get_banner_art():
                 t.append(ch)
         t.append("\n")
     return t
+
+
+# ── Fire ignition animation ─────────────────────────────────────
+
+# Ember chars that simulate fire crackling before the logo appears
+FIRE_CHARS = "░▒▓█▄▀"
+EMBER_COLORS = ["#3D0C02", "#6B1A0A", "#A03012", "#D14A22", "#FF5A2D", "#FF7A3D", "#FF9955", "#FFBB77"]
+
+
+def _animate_ignition():
+    """Animate fire ignition — embers crackle, then PLAMYA appears."""
+    if not HAS_RICH:
+        return
+
+    from rich.live import Live
+
+    width = max(len(line) for line in BLOCK_ART)
+    height = len(BLOCK_ART)
+
+    # Phase 1: Dark embers flicker (4 frames)
+    # Phase 2: Fire grows brighter (4 frames)
+    # Phase 3: Logo burns through (3 frames)
+
+    frames = []
+
+    # Phase 1 — scattered dark embers
+    for intensity in range(4):
+        t = Text()
+        density = 0.05 + intensity * 0.08  # 5% → 29% fill
+        for row in range(height):
+            for col in range(width):
+                if random.random() < density:
+                    ch = random.choice("░▒")
+                    ci = min(intensity, len(EMBER_COLORS) - 1)
+                    t.append(ch, style=f"bold {EMBER_COLORS[ci]}")
+                else:
+                    t.append(" ")
+            t.append("\n")
+        frames.append(t)
+
+    # Phase 2 — fire intensifies, brighter chars
+    for intensity in range(4):
+        t = Text()
+        density = 0.3 + intensity * 0.12
+        for row in range(height):
+            for col in range(width):
+                if random.random() < density:
+                    ch = random.choice("░▒▓█"[:2 + intensity])
+                    ci = min(2 + intensity, len(EMBER_COLORS) - 1)
+                    t.append(ch, style=f"bold {EMBER_COLORS[ci]}")
+                else:
+                    t.append(" ")
+            t.append("\n")
+        frames.append(t)
+
+    # Phase 3 — logo burns through progressively (left to right)
+    for reveal in range(3):
+        t = Text()
+        reveal_col = int((reveal + 1) / 3 * width)
+        for row in range(height):
+            line = BLOCK_ART[row]
+            for col in range(width):
+                if col < len(line):
+                    ch = line[col]
+                else:
+                    ch = " "
+
+                if col < reveal_col and ch != " ":
+                    # Revealed — show actual logo char
+                    color = _colorize_block_char(ch)
+                    t.append(ch, style=f"bold {color}" if color else "")
+                elif random.random() < 0.4:
+                    # Still burning
+                    fch = random.choice("░▒▓")
+                    ci = min(4 + reveal, len(EMBER_COLORS) - 1)
+                    t.append(fch, style=f"bold {EMBER_COLORS[ci]}")
+                else:
+                    t.append(" ")
+            t.append("\n")
+        frames.append(t)
+
+    # Play animation
+    with Live(frames[0], console=console, refresh_per_second=20, transient=True) as live:
+        for frame in frames:
+            live.update(frame)
+            time.sleep(0.07)
 
 
 # ── Status helpers ───────────────────────────────────────────────
@@ -187,14 +273,20 @@ def check_forge():
 
 # ── Commands (Rich version) ──────────────────────────────────────
 
-def print_banner():
+def print_banner(animate=True):
     """Print the PLAMYA banner — block art + tagline."""
     if not HAS_RICH:
         print(get_banner_art())
         return
 
-    art = get_banner_art()
     console.print()
+
+    # Fire ignition animation (only on interactive start)
+    if animate:
+        _animate_ignition()
+
+    # Final logo
+    art = get_banner_art()
     console.print(art, justify="center")
 
     # Title + version line
@@ -527,10 +619,10 @@ def main():
     fn = dispatch.get(command)
     if fn:
         if command not in ("version", "--version", "-v"):
-            print_banner()
+            print_banner(animate=False)
         fn()
     else:
-        print_banner()
+        print_banner(animate=False)
         if HAS_RICH:
             console.print(f"  [red]?[/] Unknown command: [bold]{command}[/]")
         else:
