@@ -17,7 +17,7 @@
 
 **Secure autonomous AI agent framework.** Born from the ashes of OpenClaw — rebuilt with security-first architecture, 4-layer prompt injection defense, and zero API keys required.
 
-PLAMYA agents work autonomously: they research, create content, analyze competitors, generate leads, and manage Telegram channels — all while protecting your secrets and blocking prompt injection attacks.
+Build agents that work autonomously: research, create content, analyze competitors, generate leads, manage Telegram channels — all while protecting your secrets and blocking prompt injection attacks.
 
 ## Why PLAMYA?
 
@@ -33,8 +33,8 @@ PLAMYA agents work autonomously: they research, create content, analyze competit
 
 ```bash
 # Clone
-git clone https://github.com/1evgeniyonegin1-gif/nl-international-ai-bots.git
-cd nl-international-ai-bots
+git clone https://github.com/1evgeniyonegin1-gif/plamya.git
+cd plamya
 
 # Install
 python -m venv venv
@@ -43,38 +43,35 @@ pip install -r requirements.txt
 
 # Configure
 cp .env.example .env
-# Fill in your Telegram bot tokens
+# Fill in your Telegram bot token
 
-# Ignite
-python run_bots.py
+# Try the example agent
+cd examples/chappie
+python run.py
 ```
 
 ## Architecture
 
 ```
 PLAMYA
-├── Agents (autonomous AI workers)
-│   ├── Chappie ......... NL International partner agent
-│   ├── Producer ........ Info-product factory (courses, landings)
-│   ├── Scanner ......... B2B lead finder & proposal writer
-│   ├── Curator ......... AI mentor for partners
-│   └── Content Mgr ..... Telegram content automation
-│
-├── Security (4-layer defense)
-│   ├── Input Guard ..... Isolates untrusted data from LLM instructions
-│   ├── Output Guard .... Regex scanning for secret leaks
-│   ├── Action Guard .... Per-agent action whitelist
-│   └── Canary Token .... Detects system prompt exfiltration
+├── Core Framework (shared/)
+│   ├── AI Client ......... Claude Code CLI (Max subscription, no API key)
+│   ├── Input Guard ....... Isolates untrusted data from LLM instructions
+│   ├── Output Guard ...... Regex scanning for secret leaks
+│   ├── Action Guard ...... Per-agent action whitelist
+│   ├── Canary Token ...... Detects system prompt exfiltration
+│   ├── Heartbeat ......... Autonomous task scheduler
+│   ├── RAG Engine ........ pgvector-based retrieval
+│   ├── Persona System .... Dynamic personality injection
+│   └── AI Clients ........ Multi-provider (Claude, Deepseek, OpenAI, YandexGPT, GigaChat)
 │
 ├── Runtime
-│   ├── AI Client ....... Claude Code CLI (Max subscription, no API key)
-│   ├── Heartbeat ....... Autonomous task scheduler
-│   └── State ........... ~/.plamya/ (file-based, no network gateway)
+│   ├── State ............. ~/.plamya/ (file-based, no network gateway)
+│   ├── Embers ............ Agent configs (embers = glowing coals)
+│   └── Secrets ........... Fernet-encrypted credentials
 │
-└── Frontends
-    ├── Mission Control .. Agent dashboard (React + FastAPI)
-    ├── Partner Panel .... Partner management Mini App
-    └── Curator App ...... Product catalog Mini App
+└── Examples
+    └── Chappie ........... Autonomous Telegram agent example
 ```
 
 ## Security
@@ -105,64 +102,50 @@ A secret token is injected into every system prompt. If it appears in the LLM ou
 | Plugin security | Code review + allowlists | None (20% were malware) |
 | Shell execution | Blocked by Action Guard | Available to all agents |
 
-## Agents
+## Building an Agent
 
-### Chappie — NL International Partner
-Autonomous agent that studies NL products, monitors Telegram channels, creates content, and builds a personal brand. Learns from real conversations and adapts.
+```python
+from shared.ai_client_cli import claude_call
+from shared.heartbeat import Heartbeat
 
-### Producer — Info-Product Factory
-Creates online courses from scratch: researches niches, analyzes competitors, writes lessons, builds landing pages, and deploys them. 3-stage AI pipeline: Architect → Writer → Reviewer.
+# 1. Make AI calls with all security layers built in
+result = claude_call(
+    prompt="Analyze this data and suggest next steps",
+    agent="my_agent",
+    untrusted_data=external_input,       # Input Guard isolates this
+    untrusted_source="telegram_message",
+)
 
-### Scanner — B2B Lead Finder
-Scans business directories (2GIS, Google Maps), audits websites for automation opportunities, generates personalized proposals with ROI calculations, and manages outreach.
-
-### Curator — AI Mentor
-RAG-powered bot that answers partner questions about NL products, business plans, and marketing strategies. 200+ documents in knowledge base.
-
-### Content Manager — Telegram Automation
-Generates and publishes content to Telegram channels. 12+ post types, AI-powered generation, scheduling, and analytics.
-
-## Mission Control
-
-Web dashboard for monitoring all agents:
-
-- **Agents** — real-time status, heartbeat, error tracking
-- **Projects** — task management across all engines
-- **Leads** — B2B lead pipeline with AI-powered dialog
-- **Inbox** — inter-agent messaging
-- **Tasks** — centralized task board
-
-```bash
-# Start Mission Control
-cd mission_control/backend && python main.py
-cd mission_control/frontend && npm run dev
+# 2. Schedule autonomous tasks
+hb = Heartbeat()
+hb.register("my_agent", "check_messages", interval_minutes=30, callback=check_messages)
+hb.register("my_agent", "daily_report", interval_minutes=1440, callback=daily_report)
+await hb.run_forever()
 ```
+
+See [examples/chappie/](examples/chappie/) for a complete working agent.
 
 ## Project Structure
 
 ```
 plamya/
 ├── shared/                    # Core framework
-│   ├── ai_client_cli.py      # Claude Code CLI client with guards
+│   ├── ai_client_cli.py      # Claude Code CLI client with all guards
 │   ├── input_guard.py        # Layer 1: untrusted data isolation
 │   ├── output_guard.py       # Layer 2: secret leak prevention
 │   ├── action_guard.py       # Layer 3: per-agent action whitelist
 │   ├── canary.py             # Layer 4: prompt injection detection
-│   └── heartbeat.py          # Autonomous task scheduler
-├── chappie_engine/            # Chappie agent
-├── infobiz_engine/            # Producer agent
-├── curator_bot/               # Curator bot
-├── content_manager_bot/       # Content manager bot
-├── sales_engine/              # Sales content generation
-├── traffic_engine/            # Traffic automation
-├── mission_control/           # Agent dashboard (FastAPI + React)
-├── partner_panel/             # Partner Mini App
-├── curator_miniapp/           # Product catalog Mini App
-├── content/                   # Knowledge base & media
-├── scripts/                   # Utilities
-├── tests/                     # Tests
-├── deploy/                    # Deployment configs
-└── docs/                      # Documentation
+│   ├── heartbeat.py          # Autonomous task scheduler
+│   ├── ai_clients/           # Multi-provider LLM abstraction
+│   ├── config/               # Settings management
+│   ├── database/             # PostgreSQL + SQLAlchemy models
+│   ├── rag/                  # RAG engine (pgvector embeddings)
+│   ├── persona/              # Dynamic personality system
+│   └── utils/                # Logging utilities
+├── examples/                  # Example agents
+│   └── chappie/              # Autonomous Telegram agent
+├── docs/                      # Documentation
+└── tests/                     # Tests
 ```
 
 ## State Directory
@@ -171,9 +154,8 @@ plamya/
 ~/.plamya/                     # The Forge
 ├── embers/                    # Agent configs (embers = glowing coals)
 │   ├── chappie.json
-│   └── producer.json
-├── chappie/                   # Chappie state
-├── producer/                  # Producer state
+│   └── my_agent.json
+├── chappie/                   # Agent state
 ├── shared/                    # Inter-agent files
 │   ├── INBOX.md              # Agent messaging
 │   └── STATUS.md             # Heartbeat status
@@ -188,7 +170,6 @@ plamya/
 | AI | Claude (via Claude Code CLI, Max subscription) |
 | Telegram | aiogram 3.x, Telethon |
 | Database | PostgreSQL + pgvector (RAG) |
-| Frontend | React + Vite + TailwindCSS |
 | Security | Fernet encryption, 4-layer prompt injection defense |
 | Scheduler | asyncio-based heartbeat (no cron, no gateway) |
 

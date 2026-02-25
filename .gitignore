@@ -5,34 +5,17 @@ __pycache__/
 *.so
 .Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-!**/frontend/src/lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
 
 # Virtual Environment
 venv/
-ENV/
-env/
-.venv
+.venv/
 
 # Environment variables
 .env
 .env.local
-
-# API Tokens (Timeweb Cloud)
-.timeweb_api_token
 
 # IDE
 .vscode/
@@ -57,63 +40,10 @@ Thumbs.db
 # Test coverage
 .coverage
 htmlcov/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Knowledge base (large files)
-content/knowledge_base/*.pdf
-content/knowledge_base/*.docx
-content/training_materials/**/*.pdf
-content/training_materials/**/*.mp4
-
-# Vector database
-chroma_db/
-vector_db/
-nul
-
-# Temporary content folders (processed materials)
-content/nl_assistant_materials/
-content/nl_knowledge/
-content/nl_photos_categorized/
-content/nl_products_detailed/
-content/unified_products/
-
-# Media files (stored on VPS, not needed in GitHub)
-content/testimonials/
-content/testimonials.tar.gz
-*.mp4
-*.MP4
-*.MOV
-*.mov
-*.avi
-*.mkv
-
-# Temporary files
-полный каталог/
-цены на все продукты.txt
-
-# Archive folders (old scripts and docs)
-scripts/archive/
-docs/archive/
-
-# Test files
-test_*.py
-
-# Pytest cache
 .pytest_cache/
 
-# Node modules (frontend apps)
+# Node modules (if using frontends)
 node_modules/
-
-# Personal files (not project-related)
-*.pdf
-RESUME_*.md
-resume_*.html
-kitchen_plan.*
-_missing_photos.txt
-generate_resume_pdf.py
-scripts/distribute_photos_report.txt
 
 # Telethon sessions
 *.session
@@ -127,7 +57,9 @@ secrets/
 *.pem
 *.key
 
-# Build output (frontends)
+# Build output
 */dist/
 */build/
-!build/
+
+# Temporary
+nul
