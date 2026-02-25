@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "plamya"
+version = "0.1.0"
+description = "Secure autonomous AI agent framework. From ashes, autonomy."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Danil Lysenko"},
+]
+keywords = ["ai-agents", "autonomous-agents", "security", "telegram", "prompt-injection"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Security",
+]
+dependencies = [
+    "httpx>=0.26.0",
+    "aiogram>=3.4.0",
+    "telethon>=1.34.0",
+    "sqlalchemy>=2.0.25",
+    "asyncpg>=0.29.0",
+    "cryptography>=42.0.0",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "loguru>=0.7.2",
+]
+
+[project.optional-dependencies]
+rag = [
+    "pgvector>=0.2.4",
+    "sentence-transformers>=2.3.1",
+]
+api = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+]
+all = [
+    "plamya[rag,api]",
+]
+
+[project.scripts]
+plamya = "plamya:main"
+
+[project.urls]
+Homepage = "https://github.com/1evgeniyonegin1-gif/plamya"
+Repository = "https://github.com/1evgeniyonegin1-gif/plamya"
+
+[tool.setuptools]
+py-modules = ["plamya"]
+packages = ["shared", "shared.ai_clients", "shared.config", "shared.database", "shared.rag", "shared.persona", "shared.media", "shared.style_monitor", "shared.testimonials", "shared.utils"]
